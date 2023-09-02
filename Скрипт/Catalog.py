@@ -17,10 +17,10 @@ import pandas as pd
 
 def check_files():
     # Список файлов предыдущей загрузки
-    logs = pd.read_csv('C:\\Для BI отчетности\\Файлы_xlsx\\file_logs.csv')
+    logs = pd.read_csv('C:\\Для BI отчетности\\Reports_bi\\Файлы_xlsx\\file_logs.csv')
     
     # Список файлов корневой папки в текущий момент
-    content = os.listdir('C:\\Для BI отчетности\\Файлы_xlsx\\')
+    content = os.listdir('C:\\Для BI отчетности\\Reports_bi\\Файлы_xlsx\\')
     files = [i for i in content if i.endswith('.xlsx')]
     df = pd.DataFrame(files)
     
@@ -58,8 +58,8 @@ def create_path():
 
 # Обновляем список загруженных файлов
 def write_file_list():
-    content = os.listdir('C:\\Для BI отчетности\\Файлы_xlsx\\')
+    content = os.listdir('C:\\Для BI отчетности\\Reports_bi\\Файлы_xlsx\\')
     files = [i for i in content if i.endswith('.xlsx')]
     df = pd.DataFrame(files)
-    df.to_csv('C:\\Для BI отчетности\\Файлы_xlsx\\file_logs.csv', index=False)
+    df.to_csv('C:\\Для BI отчетности\\Reports_bi\\Файлы_xlsx\\file_logs.csv', index=False)
 

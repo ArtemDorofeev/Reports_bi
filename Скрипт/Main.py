@@ -37,7 +37,7 @@ from Transactions import transaction
 # In[3]:
 
 
-global_path = 'C:\\Для BI отчетности\\Файлы_xlsx\\'
+global_path = 'C:\\Для BI отчетности\\Reports_bi\\Файлы_xlsx\\'
 dp = create_path()
 
 
