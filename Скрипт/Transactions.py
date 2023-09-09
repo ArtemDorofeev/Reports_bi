@@ -73,7 +73,7 @@ def transaction_10(path):
     return df
 
 
-# In[4]:
+# In[ ]:
 
 
 def transaction_41(path):
@@ -122,7 +122,7 @@ def transaction_41(path):
     return df
 
 
-# In[5]:
+# In[ ]:
 
 
 def transaction_44(path):
@@ -138,33 +138,39 @@ def transaction_44(path):
     sql_query_cat="""select * from categories"""
     db_cat = query(sql_query_cat)
 
-    # Преобразуем категории в словарь {категория: позиция}
-    category_report = dict(zip(db_cat[1], db_cat[0]))
+    # Преобразуем категории 1c в словарь {категория: позиция}
+    category_1c = dict(zip(db_cat[1], db_cat[0]))
+    
+    # Преобразуем категории БД в словарь {категория: позиция}
+    category_report = dict(zip(db_tr[2], db_tr[5]))
     
     # Формируем шапку таблицы, убираем строки в голове
     df.columns = list(df.iloc[4].values)
     df = df.iloc[5:len(df)-1,[0,2,3,4]]
     df = df.set_index(pd.Index(range(start_index, start_index+len(df)))).reset_index()
     
-    # Присваиваем позиции для категорий в таблице
-
-    k = list(df['Аналитика Дт'].unique())
-    v = [7, 8, 16, 3, 14, 15, 17, 5, 18]
-    for i, j in enumerate(k):
-        category_report[j] = v[i]
+    def category(row):
+        part = row[3].split('\n')[0]   
+        for i in category_report:
+            if part in i:
+                x = category_report[i]
+                break
+            else:
+                x = category_1c[row[2]]
+        return x
     
     # Формируем таблицу под структуру БД
 
     df['Дата'] = df['Период'].apply(lambda x: datetime.strptime(x, '%d.%m.%Y').date())
-    df['Группа'] = df['Аналитика Дт'].apply(lambda x: category_report[x])
+    df['Категория'] = df.apply(category, axis=1)
     df['id_account'] = 4
-    df = df[['index', 'Дата', 'Аналитика Кт', 'id_account', 'Сумма, руб.', 'Группа']]
+    df = df[['index', 'Дата', 'Аналитика Кт', 'id_account', 'Сумма, руб.', 'Категория']]
     df.columns = ['id', "Date", 'category', 'id_account', 'amount', 'id_category']
     
     return df
 
 
-# In[6]:
+# In[ ]:
 
 
 def transaction_90(path):
@@ -207,7 +213,7 @@ def transaction_90(path):
     return values_insert
 
 
-# In[7]:
+# In[ ]:
 
 
 def transaction_91(path):
@@ -224,7 +230,10 @@ def transaction_91(path):
     db_cat = query(sql_query_cat)
 
     # Преобразуем категории в словарь {категория: позиция}
-    category_report = dict(zip(db_cat[1], db_cat[0]))
+    category_1с = dict(zip(db_cat[1], db_cat[0]))
+    
+    # Преобразуем категории БД в словарь {категория: позиция}
+    category_report = dict(zip(db_tr[2], db_tr[5]))
     
     # Вытаскиваем из названия файла отчетную дату
 
@@ -245,34 +254,26 @@ def transaction_91(path):
     df = df[df['Счет'].notna()][~df[df['Счет'].notna()]['Счет'].str.contains('Прочие|Расходы на услуги')]
     df = df.set_index(pd.Index(range(start_index, start_index+len(df)))).reset_index()
     
-    # Сортируем категории
-    relation = {'Альфа-Банк АО':category_report['% по кредитам'],
-     'Габриелян Владимир Георгиевич':category_report['% по кредитам'],
-     'Касперский':category_report['Затраты на офис'],
-     'МТТ(телефония)':category_report['Услуги связи (почта, интернет)'],
-     'ПОЧТА ГОРОД':category_report['Услуги связи (почта, интернет)'],
-     'СанСим АО':category_report['Услуги связи (почта, интернет)'],
-     'ТЖБИ-4':category_report['Услуги связи (почта, интернет)'],
-     'Яндекс ООО':category_report['Услуги связи (почта, интернет)']}
-
-    def relations(row):
-        try:
-            x = relation[row]
-        except:
-            x = category_report['Другие расходы']
+    def category(row):          
+        for i in category_report:
+            if row[1] in i:
+                x = category_report[i]
+                break
+            else:
+                x = category_1с['Другие расходы']
         return x
     
     # Формируем таблицу под структуру БД
     df['Дата'] = rep_date
     df['id_account'] = 3
-    df['id_category'] = df['Счет'].apply(relations)
+    df['id_category'] = df.apply(category, axis=1)
     df = df[['index', 'Дата', 'Счет', 'id_account', 'Обороты за период', 'id_category']]
     df.columns = ['id', "Date", 'category', 'id_account', 'amount', 'id_category']
     
     return df
 
 
-# In[8]:
+# In[ ]:
 
 
 def transaction(path):

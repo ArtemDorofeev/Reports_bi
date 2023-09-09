@@ -28,7 +28,6 @@ from db_connect import single_insert
 from db_connect import db_engine
 
 from Catalog import create_path
-from Catalog import write_file_list
 from Transactions import transaction
 
 
@@ -41,7 +40,17 @@ global_path = 'C:\\Для BI отчетности\\Reports_bi\\Файлы_xlsx\\
 dp = create_path()
 
 
-# In[5]:
+# In[ ]:
+
+
+def write_log(path):
+    lst = list()
+    lst.append(path)
+    d = pd.DataFrame(lst)
+    d.to_csv(global_path + 'file_logs.csv',  mode='a', header=False, index=False)   
+
+
+# In[ ]:
 
 
 if dp:
@@ -52,6 +61,7 @@ if dp:
     if len(df_90) > 0:
         sql_insert="""INSERT INTO revenue (id,"Date", rev_opt, rev_transport) VALUES (%s, %s, %s, %s)"""
         single_insert(sql_insert, df_90)
+        write_log(dp['path_90'])
     else:
         pass
 
@@ -62,6 +72,7 @@ if dp:
     if len(df_44) > 0:
         conn_engine = db_engine()
         df_44.to_sql('transactions', conn_engine, if_exists="append", chunksize=100, index=False)
+        write_log(dp['path_44'])
     else:
         pass
 
@@ -72,6 +83,7 @@ if dp:
     if len(df_10) > 0:
         conn_engine = db_engine()
         df_10.to_sql('transactions', conn_engine, if_exists="append", chunksize=100, index=False)
+        write_log(dp['path_10'])
     else:
         pass
 
@@ -82,6 +94,7 @@ if dp:
     if len(df_41) > 0:
         conn_engine = db_engine()
         df_41.to_sql('transactions', conn_engine, if_exists="append", chunksize=100, index=False)
+        write_log(dp['path_41'])
     else:
         pass
 
@@ -92,12 +105,10 @@ if dp:
     if len(df_91) > 0:
         conn_engine = db_engine()
         df_91.to_sql('transactions', conn_engine, if_exists="append", chunksize=100, index=False)
+        write_log(dp['path_91'])
     else:
         pass
 
-    # Обновляем список загруженных файлов
-    write_file_list()
 
 else:
     pass
-
