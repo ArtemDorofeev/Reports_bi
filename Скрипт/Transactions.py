@@ -50,9 +50,15 @@ def transaction_10(path):
     current_date = datetime.now()
     current_year = current_date.year
 
-    report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                 .find('счету 10 за')+12:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                 .find(str(current_year))-1]
+    if 'ПРОЖБИ ИНЖИНИРИНГ' in path:
+        report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                     .find('счету 10 за')+12:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                     .find(str(current_year))-1]
+    elif 'СТРОЙЛОГИСТИКА' in path:
+        report_month = df['ООО "СТРОЙЛОГИСТИКА"'][0][df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                     .find('счету 10 за')+12:df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                     .find(str(current_year))-1]
+    
     date_str = f'01 {report_month} {current_year}'
     forma = '%d %B %Y'
     rep_date = datetime.strptime(date_str, forma).date()
@@ -98,9 +104,15 @@ def transaction_41(path):
     current_date = datetime.now()
     current_year = current_date.year
 
-    report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                     .find('41.01 за')+9:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                     .find(str(current_year))-1]
+    if 'ПРОЖБИ ИНЖИНИРИНГ' in path:
+        report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                         .find('41.01 за')+9:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                         .find(str(current_year))-1]
+    elif 'СТРОЙЛОГИСТИКА' in path:    
+        report_month = df['ООО "СТРОЙЛОГИСТИКА"'][0][df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                         .find('41.01 за')+9:df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                         .find(str(current_year))-1]
+        
     date_str = f'01 {report_month} {current_year}'
     forma = '%d %B %Y'
     rep_date = datetime.strptime(date_str, forma).date()
@@ -146,7 +158,7 @@ def transaction_44(path):
     
     # Формируем шапку таблицы, убираем строки в голове
     df.columns = list(df.iloc[4].values)
-    df = df.iloc[5:len(df)-1,[0,2,3,4]]
+    df = df.iloc[7:len(df)-2,[0,2,3,5]]
     df = df.set_index(pd.Index(range(start_index, start_index+len(df)))).reset_index()
     
     def category(row):
@@ -154,18 +166,18 @@ def transaction_44(path):
         for i in category_report:
             if part in i:
                 x = category_report[i]
-                break
+                break            
             else:
-                x = category_1c[row[2]]
+                x = category_1c['Другие расходы']
         return x
     
     # Формируем таблицу под структуру БД
 
     df['Дата'] = df['Период'].apply(lambda x: datetime.strptime(x, '%d.%m.%Y').date())
-    df['Категория'] = df.apply(category, axis=1)
-    df['id_account'] = 4
-    df = df[['index', 'Дата', 'Аналитика Кт', 'id_account', 'Сумма, руб.', 'Категория']]
-    df.columns = ['id', "Date", 'category', 'id_account', 'amount', 'id_category']
+    df['id_account'] = 4    
+    df['id_category'] = df.apply(category, axis=1)
+    df.columns = ['id', "Date", 'category_group', 'category', 'amount', 'Дата', 'id_account', 'id_category']
+    df = df[['id', 'Date', 'category', 'id_account', 'amount', 'id_category']]  
     
     return df
 
@@ -183,10 +195,16 @@ def transaction_90(path):
     locale.setlocale(locale.LC_ALL, '')
     current_date = datetime.now()
     current_year = current_date.year
-
-    report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                     .find('90.01.1 за')+11:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                     .find(str(current_year))-1]
+    
+    if 'ПРОЖБИ ИНЖИНИРИНГ' in path:        
+        report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                         .find('90.01.1 за')+11:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                         .find(str(current_year))-1]
+    elif 'СТРОЙЛОГИСТИКА' in path:
+        report_month = df['ООО "СТРОЙЛОГИСТИКА"'][0][df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                         .find('90.01.1 за')+11:df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                         .find(str(current_year))-1]
+    
     date_str = f'01 {report_month} {current_year}'
     forma = '%d %B %Y'
     rep_date = datetime.strptime(date_str, forma).date()
@@ -194,7 +212,7 @@ def transaction_90(path):
     # Выбираем нужные данные из файла, столбцы и строки
 
     df.columns = [df.iloc[4].values]
-    df = df.iloc[8:10,[0,4]]
+    df = df[df.iloc[:,0] == '90.01.1'].iloc[:,[0,4]]
     df.columns = ['Счет', 'Выручка']
     
     # Актуализируем информацию из БД
@@ -205,10 +223,10 @@ def transaction_90(path):
     # Формируем данные для загрузки в БД
 
     start_index = max(db[0])+1
-    rev_opt = df['Выручка'][8]
-    rev_transport = df['Выручка'][9]
-    values_insert = (start_index, rep_date, rev_opt, rev_transport)
-    values_update = (rev_opt, rev_transport, rep_date)
+    revenue = df['Выручка'].values[0]
+    rev_transport = 0
+    values_insert = (start_index, rep_date, revenue, rev_transport)
+    values_update = (revenue, rev_transport, rep_date)
     
     return values_insert
 
@@ -241,9 +259,15 @@ def transaction_91(path):
     current_date = datetime.now()
     current_year = current_date.year
 
-    report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                 .find('91.02 за')+9:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
-                                 .find(str(current_year))-1]
+    if 'ПРОЖБИ ИНЖИНИРИНГ' in path:
+        report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                     .find('91.02 за')+9:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                     .find(str(current_year))-1]
+    elif 'СТРОЙЛОГИСТИКА' in path:
+        report_month = df['ООО "СТРОЙЛОГИСТИКА"'][0][df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                     .find('91.02 за')+9:df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                     .find(str(current_year))-1]
+        
     date_str = f'01 {report_month} {current_year}'
     forma = '%d %B %Y'
     rep_date = datetime.strptime(date_str, forma).date()
