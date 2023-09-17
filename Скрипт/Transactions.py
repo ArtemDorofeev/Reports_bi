@@ -167,8 +167,8 @@ def transaction_44(path):
             if part in i:
                 x = category_report[i]
                 break
-            elif row[2] in category_1c:
-                x = category_1c[row[2]]
+            elif row[2].strip() in category_1c:
+                x = category_1c[row[2].strip()]
             else:
                 x = category_1c['Другие расходы']
         return x
