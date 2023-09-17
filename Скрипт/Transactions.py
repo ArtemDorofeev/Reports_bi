@@ -166,9 +166,12 @@ def transaction_44(path):
         for i in category_report:
             if part in i:
                 x = category_report[i]
-                break            
+                break               
             else:
-                x = category_1c['Другие расходы']
+                try:
+                    x = category_1c[row[2].strip()]
+                except:
+                    x = category_1c['Другие расходы']
         return x
     
     # Формируем таблицу под структуру БД
