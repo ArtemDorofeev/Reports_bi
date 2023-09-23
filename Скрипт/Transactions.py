@@ -184,6 +184,45 @@ def transaction_44(path):
     
     return df
 
+def transaction_62(path):
+        
+    df = pd.read_excel(path)
+
+    # Вытаскиваем из названия файла отчетную дату
+
+    locale.setlocale(locale.LC_ALL, '')
+    current_date = datetime.now()
+    current_year = current_date.year
+
+    if 'ПРОЖБИ ИНЖИНИРИНГ' in path:        
+        report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                         .find('62 за')+6:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
+                                         .find(str(current_year))-1]
+        contract = 'СТРОЙЛОГИСТИКА'
+    elif 'СТРОЙЛОГИСТИКА' in path:
+        report_month = df['ООО "СТРОЙЛОГИСТИКА"'][0][df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                         .find('62 за')+6:df['ООО "СТРОЙЛОГИСТИКА"'][0]\
+                                         .find(str(current_year))-1]
+        contract = 'ПРОЖБИ'
+
+    date_str = f'01 {report_month} {current_year}'
+    rep_date = datetime.strptime(date_str, '%d %B %Y').date()
+
+
+
+    # Актуализируем информацию из БД
+
+    sql_query="""select * from revenue"""
+    db = query(sql_query)
+
+    # Формируем данные для загрузки в БД
+
+    start_index = max(db[0])+1
+    revenue = df[df.iloc[:,0] == 'Итого'].iloc[:,3].values[0]
+    rev_transport = 'Взаимные рассчеты с ' + contract
+    values_insert = (start_index, rep_date, revenue, rev_transport)
+    
+    return values_insert
 
 # In[ ]:
 
@@ -203,10 +242,12 @@ def transaction_90(path):
         report_month = df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0][df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
                                          .find('90.01.1 за')+11:df['ООО "ПРОЖБИ ИНЖИНИРИНГ"'][0]\
                                          .find(str(current_year))-1]
+        company = 'ПРОЖБИ'
     elif 'СТРОЙЛОГИСТИКА' in path:
         report_month = df['ООО "СТРОЙЛОГИСТИКА"'][0][df['ООО "СТРОЙЛОГИСТИКА"'][0]\
                                          .find('90.01.1 за')+11:df['ООО "СТРОЙЛОГИСТИКА"'][0]\
                                          .find(str(current_year))-1]
+        company = 'СТРОЙЛОГИСТИКА'
     
     date_str = f'01 {report_month} {current_year}'
     forma = '%d %B %Y'
@@ -227,7 +268,7 @@ def transaction_90(path):
 
     start_index = max(db[0])+1
     revenue = df['Выручка'].values[0]
-    rev_transport = 0
+    rev_transport = 'Выручка ' + company
     values_insert = (start_index, rep_date, revenue, rev_transport)
     values_update = (revenue, rev_transport, rep_date)
     
@@ -310,6 +351,8 @@ def transaction(path):
         df =transaction_41(path)
     elif '44.01' in path:
         df = transaction_44(path)
+    elif '62' in path:
+        df = transaction_62(path)
     elif '90.01' in path:
         df = transaction_90(path)
     elif '91.02' in path:

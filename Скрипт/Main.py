@@ -54,6 +54,25 @@ def write_log(path):
 
 
 if dp:
+
+    # Генерируем датасет для загрузки в базу данных
+    if dp:
+        for i in dp: 
+            if '62' in i:
+                df_62 = transaction(global_path + i)
+
+                # Загружаем датасет в базу данных
+                if len(df_62) > 0:
+                    sql_insert="""INSERT INTO revenue (id,"Date", rev_opt, rev_transport) VALUES (%s, %s, %s, %s)"""
+                    single_insert(sql_insert, df_62)
+                    write_log(i)
+                else:
+                    pass
+            else:
+                continue
+    else:
+        pass
+        
     # Генерируем датасет для загрузки в базу данных
     if dp:
         for i in dp: 
